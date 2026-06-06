@@ -864,12 +864,39 @@ html[data-theme="dark"] .user-menu-item.danger:hover {
   font-size: 18px;
 }
 
+/* icon-btn base */
 .calendar-nav button, .icon-btn {
   border: 1px solid #e4e4e7;
   background: white;
+  color: #18181b;
   border-radius: 10px;
   padding: 8px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.context-strip .icon-btn,
+.onboarding-card .icon-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #4c1d95 !important;
+}
+
+html[data-theme="dark"] .calendar-nav button,
+html[data-theme="dark"] .icon-btn {
+  border-color: #3f3f46;
+  background: #27272a;
+  color: #e4e4e7;
+}
+
+html[data-theme="dark"] .context-strip .icon-btn,
+html[data-theme="dark"] .onboarding-card .icon-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ddd6fe !important;
 }
 
 .calendar-controls {

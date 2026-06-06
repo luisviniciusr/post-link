@@ -12,28 +12,16 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
-import { platformSupport } from '../data/mock';
+import { platformSupport, platformIcons } from '../data/mock';
 import ThemeToggle from '../components/ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 
-const platformIcons = [
-  { id: 'x', name: 'X', color: '#111827', label: 'Twitter/X' },
-  { id: 'instagram', name: 'IG', color: '#E1306C', label: 'Instagram' },
-  { id: 'linkedin', name: 'in', color: '#0A66C2', label: 'LinkedIn' },
-  { id: 'facebook', name: 'f', color: '#1877F2', label: 'Facebook' },
-  { id: 'tiktok', name: 'TT', color: '#111827', label: 'TikTok' },
-  { id: 'youtube', name: 'YT', color: '#FF0000', label: 'YouTube' },
-  { id: 'bluesky', name: 'BS', color: '#0085FF', label: 'Bluesky' },
-  { id: 'threads', name: '@', color: '#111827', label: 'Threads' },
-  { id: 'pinterest', name: 'P', color: '#E60023', label: 'Pinterest' },
-  { id: 'google', name: 'G', color: '#4285F4', label: 'Google Business' },
-];
 
 const featuredOn = ['Starter Story', 'Product Hunt', 'Indie Hackers', 'Hacker News'];
 
 const heroPhrases = [
-  'link LinkedIn, Instagram, and X in one flow',
-  'batch your whole week in under an hour',
+  'to link LinkedIn, Instagram, and X in one flow',
+  'to batch their whole week in under an hour',
   'fair pricing without agency bloat',
 ];
 
