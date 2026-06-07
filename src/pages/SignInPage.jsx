@@ -84,7 +84,7 @@ export default function SignInPage() {
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {mode === 'signup' && (
-            <>
+            <div className="auth-field">
               <label htmlFor="name">Name</label>
               <input
                 id="name"
@@ -93,27 +93,31 @@ export default function SignInPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-            </>
+            </div>
           )}
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            required
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={6}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="auth-field">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              required
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="auth-field">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={6}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
           {error && <p className="auth-error">{error}</p>}
           {info && <p className="auth-info">{info}</p>}
           <button type="submit" className="button primary full" disabled={busy || !isConfigured}>

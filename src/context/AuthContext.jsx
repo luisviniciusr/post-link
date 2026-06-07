@@ -43,16 +43,43 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  async function ensureProfile(authUser, fallbackName) {
+    if (!authUser) return null;
+
+    const name = fallbackName || authUser.user_metadata?.name || displayNameFromEmail(authUser.email);
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(
+        {
+          id: authUser.id,
+          email: authUser.email,
+          name,
+        },
+        { onConflict: 'id' }
+      )
+      .select('*')
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
   async function loadProfile(authUser) {
     if (!authUser) {
       setUser(null);
       return;
     }
-    const { data: profile } = await supabase
+    let { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
-      .single();
+      .maybeSingle();
+
+    // If a user was created before the profile row existed, self-heal it.
+    if (!profile && !error) {
+      profile = await ensureProfile(authUser);
+    }
+
     setUser(shapeUser(authUser, profile));
   }
 
@@ -77,18 +104,27 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function signUp({ email, password, name }) {
+    const displayName = name || displayNameFromEmail(email);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name: name || displayNameFromEmail(email) } },
+      options: { data: { name: displayName } },
     });
     if (error) throw error;
+    if (data.user) {
+      const profile = data.session ? await ensureProfile(data.user, displayName) : null;
+      setUser(shapeUser(data.user, profile));
+    }
     return data;
   }
 
   async function signIn({ email, password }) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    if (data.user) {
+      const profile = await ensureProfile(data.user);
+      setUser(shapeUser(data.user, profile));
+    }
     return data;
   }
 
