@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   CalendarClock,
   Check,
@@ -14,6 +14,8 @@ import {
   getPlatform,
   platformCaptionLimits,
 } from '../../data/mock';
+import { addPost } from '../../data/store';
+import { showToast } from '../../components/Toast';
 import PlatformTips from '../../components/dashboard/PlatformTips';
 
 const STEPS = ['Link', 'Upload', 'Write', 'Tweak', 'Schedule'];
@@ -78,6 +80,48 @@ export default function CreatePostPage() {
   const currentStep = activeStep === -1 ? STEPS.length - 1 : activeStep;
   const canPublish = selectedIds.length > 0 && (!needsUpload || uploaded) && masterCaption.trim().length > 0;
   const showLinkedInTips = selectedPlatforms.includes('linkedin');
+  const navigate = useNavigate();
+
+  function buildPost(status) {
+    const selectedAccounts = eligibleAccounts
+      .filter((a) => selectedIds.includes(a.id))
+      .map((a) => ({
+        id: a.id,
+        platform: a.platformId,
+        platformName: getPlatform(a.platformId)?.label || a.platformId,
+      }));
+    return {
+      title: masterCaption.slice(0, 60) + (masterCaption.length > 60 ? '…' : ''),
+      caption: masterCaption,
+      status,
+      date: scheduleDate || new Date().toISOString().slice(0, 10),
+      time: scheduleTime || '12:00',
+      platforms: selectedAccounts.map((a) => a.platform),
+      accounts: selectedAccounts,
+      overrides: Object.keys(overrides).length > 0 ? { ...overrides } : undefined,
+    };
+  }
+
+  function handleSaveDraft() {
+    if (!canPublish) return;
+    addPost(buildPost('draft'));
+    showToast('Draft saved! View it in Posts.', 'success');
+    navigate('/app/posts/drafts');
+  }
+
+  function handlePublishNow() {
+    if (!canPublish) return;
+    addPost(buildPost('posted'));
+    showToast('Post published! 🚀', 'success');
+    navigate('/app/posts');
+  }
+
+  function handleSchedule() {
+    if (!canPublish || !scheduleDate) return;
+    addPost(buildPost('scheduled'));
+    showToast(`Scheduled for ${scheduleDate} at ${scheduleTime || '12:00'}`, 'success');
+    navigate('/app/posts/scheduled');
+  }
 
   function toggleAccount(id) {
     setSelectedIds((ids) => (
@@ -315,9 +359,9 @@ export default function CreatePostPage() {
 
       <div className="editor-actions">
         <Link to="/app/create" className="button ghost">Cancel</Link>
-        <button type="button" className="button ghost" disabled={!canPublish}>Save draft</button>
-        <button type="button" className="button primary" disabled={!canPublish}>Link & publish now</button>
-        <button type="button" className="button primary" disabled={!canPublish || !scheduleDate}>Link & schedule</button>
+        <button type="button" className="button ghost" disabled={!canPublish} onClick={handleSaveDraft}>Save draft</button>
+        <button type="button" className="button primary" disabled={!canPublish} onClick={handlePublishNow}>Link & publish now</button>
+        <button type="button" className="button primary" disabled={!canPublish || !scheduleDate} onClick={handleSchedule}>Link & schedule</button>
       </div>
     </div>
   );

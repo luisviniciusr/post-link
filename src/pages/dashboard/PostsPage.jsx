@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { FilePlus2 } from 'lucide-react';
-import { scheduledPosts, getPlatform } from '../../data/mock';
+import { getAllPosts } from '../../data/store';
+import { getPlatform } from '../../data/mock';
 import PostsFilterNav from '../../components/dashboard/PostsFilterNav';
 
 const emptyCopy = {
@@ -14,7 +15,7 @@ export default function PostsPage() {
   const { filter } = useParams();
   const mode = filter || 'all';
 
-  const posts = scheduledPosts.filter((post) => {
+  const posts = getAllPosts().filter((post) => {
     if (mode === 'all') return true;
     if (mode === 'scheduled') return post.status === 'scheduled';
     if (mode === 'posted') return post.status === 'posted';

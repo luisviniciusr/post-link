@@ -8,7 +8,8 @@ import {
   Sparkles,
   TrendingUp,
 } from 'lucide-react';
-import { connectedAccounts, getConnectedAccounts, getDashboardStats, getPlatform } from '../../data/mock';
+import { connectedAccounts, getConnectedAccounts, getPlatform } from '../../data/mock';
+import { getStats } from '../../data/store';
 import { useAuth } from '../../context/AuthContext';
 import ContextStrip from '../../components/dashboard/ContextStrip';
 import OnboardingCard from '../../components/dashboard/OnboardingCard';
@@ -21,7 +22,7 @@ function greeting() {
 }
 
 export default function HomePage() {
-  const stats = useMemo(() => getDashboardStats(), []);
+  const stats = useMemo(() => getStats(), []);
   const { user } = useAuth();
   const displayName = user?.name && user.name.length <= 18 ? user.name : user?.name?.split(' ')[0] || 'there';
 

@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import CommandPalette from './components/CommandPalette';
+import ToastContainer from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import SignInPage from './pages/SignInPage';
@@ -22,6 +23,7 @@ export default function App() {
   return (
     <>
       <CommandPalette />
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignInPage />} />
@@ -36,6 +38,7 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="create" element={<CreateHomePage />} />
           <Route path="create/:type" element={<CreatePostPage />} />
+          <Route path="calendar" element={<Navigate to="/app/posts/calendar" replace />} />
           <Route path="posts/calendar" element={<CalendarPage />} />
           <Route path="posts" element={<PostsPage />} />
           <Route path="posts/:filter" element={<PostsPage />} />

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Plus, StickyNote } from 'lucide-react';
-import { getDashboardStats, scheduledPosts } from '../../data/mock';
+import { getStats, getAllPosts } from '../../data/store';
 import ContextStrip from '../../components/dashboard/ContextStrip';
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -35,7 +35,8 @@ function formatDayLabel(date) {
 export default function CalendarPage() {
   const [view, setView] = useState('Month');
   const [cursor, setCursor] = useState(new Date(2026, 5, 3));
-  const stats = useMemo(() => getDashboardStats(), []);
+  const stats = useMemo(() => getStats(), []);
+  const allPosts = useMemo(() => getAllPosts(), []);
 
   const cells = useMemo(
     () => (view === 'Month'
@@ -48,7 +49,7 @@ export default function CalendarPage() {
     ? cursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
     : `${formatDayLabel(cells[0])} – ${formatDayLabel(cells[6])}`;
 
-  const upcoming = scheduledPosts.filter((post) => post.status === 'scheduled');
+  const upcoming = allPosts.filter((post) => post.status === 'scheduled');
 
   function shiftPeriod(direction) {
     const next = new Date(cursor);
@@ -108,7 +109,7 @@ export default function CalendarPage() {
               {cells.map((date) => {
                 const key = date.toISOString().slice(0, 10);
                 const inMonth = date.getMonth() === cursor.getMonth();
-                const dayPosts = scheduledPosts.filter((post) => post.date === key);
+                const dayPosts = allPosts.filter((post) => post.date === key);
                 const isToday = key === new Date().toISOString().slice(0, 10);
 
                 return (
@@ -131,7 +132,7 @@ export default function CalendarPage() {
             <div className="week-grid">
               {cells.map((date) => {
                 const key = date.toISOString().slice(0, 10);
-                const dayPosts = scheduledPosts.filter((post) => post.date === key);
+                const dayPosts = allPosts.filter((post) => post.date === key);
                 const isToday = key === new Date().toISOString().slice(0, 10);
 
                 return (
