@@ -17,7 +17,7 @@ export const platformSupport = {
   linkedin: {
     postTypes: ['text', 'image', 'video'],
     formats: ['Text', 'Image', 'Video'],
-    connectNote: 'Authorize your LinkedIn profile or Company Page. post-link uses the official LinkedIn Marketing API.',
+    connectNote: 'Authorize your LinkedIn profile or Company Page. postadoria uses the official LinkedIn Marketing API.',
     editorTips: [
       'Lead with a clear insight — LinkedIn rewards professional, value-first posts.',
       'Use line breaks for readability; walls of text get scrolled past.',
@@ -40,20 +40,20 @@ export const platformSupport = {
 };
 
 export const connectedAccounts = [
-  { id: '1', platformId: 'instagram', handle: '@postlinklab', name: 'Post Link Lab', connected: true },
-  { id: '2', platformId: 'tiktok', handle: '@postlinklab', name: 'Post Link Lab', connected: true },
-  { id: '3', platformId: 'youtube', handle: '@postlinklab', name: 'Post Link Lab', connected: true },
-  { id: '4', platformId: 'x', handle: '@postlinklab', name: 'Post Link Lab', connected: true },
+  { id: '1', platformId: 'instagram', handle: '@postador_ia', name: 'Postadoria', connected: true },
+  { id: '2', platformId: 'tiktok', handle: '@postador_ia', name: 'Postadoria', connected: true },
+  { id: '3', platformId: 'youtube', handle: '@postadoria', name: 'Postadoria', connected: true },
+  { id: '4', platformId: 'x', handle: '@postador_ia', name: 'Postadoria', connected: true },
   {
     id: '5',
     platformId: 'linkedin',
-    handle: 'linkedin.com/in/postlinklab',
-    name: 'Post Link Lab',
+    handle: 'linkedin.com/in/postadoria',
+    name: 'Postadoria',
     pageType: 'Profile',
     connected: true,
   },
-  { id: '6', platformId: 'facebook', handle: 'Post Link Lab', name: 'Facebook Page', connected: true },
-  { id: '7', platformId: 'linkedin', handle: 'linkedin.com/company/postlinklab', name: 'Post Link Lab Company', pageType: 'Company Page', connected: false },
+  { id: '6', platformId: 'facebook', handle: 'Postadoria', name: 'Facebook Page', connected: true },
+  { id: '7', platformId: 'linkedin', handle: 'linkedin.com/company/postadoria', name: 'Postadoria Company', pageType: 'Company Page', connected: false },
 ];
 
 export const scheduledPosts = [
@@ -78,7 +78,7 @@ export const scheduledPosts = [
   {
     id: 'p3',
     title: 'Customer story carousel',
-    caption: 'How one team cut posting time in half with post-link.',
+    caption: 'How one team cut posting time in half with postadoria.',
     status: 'draft',
     date: '2026-06-08',
     time: '12:00',

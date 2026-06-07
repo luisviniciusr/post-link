@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 
-const STORAGE_KEY = 'post-link-session';
+const STORAGE_KEY = 'postadoria-session';
 
 const AuthContext = createContext(null);
 

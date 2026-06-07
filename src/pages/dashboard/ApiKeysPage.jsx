@@ -33,7 +33,7 @@ export default function ApiKeysPage() {
 
       <section className="dash-panel docs-panel">
         <h3>Quick start</h3>
-        <pre>{`curl https://api.post-link.app/v1/posts \\
+        <pre>{`curl https://api.postadoria.com/v1/posts \\
   -H "Authorization: Bearer ${sampleKey}" \\
   -H "Content-Type: application/json" \\
   -d '{"caption":"Hello world","platforms":["x","linkedin"]}'`}</pre>

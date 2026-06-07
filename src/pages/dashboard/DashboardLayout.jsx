@@ -66,7 +66,7 @@ function pageTitle(pathname) {
 }
 
 function openCommandPalette() {
-  window.dispatchEvent(new CustomEvent('post-link:open-palette'));
+  window.dispatchEvent(new CustomEvent('postadoria:open-palette'));
 }
 
 export default function DashboardLayout() {

@@ -30,7 +30,7 @@ export default function SettingsPage() {
 
       <section className="dash-panel">
         <h3>Appearance</h3>
-        <p className="dash-muted">Choose how post-link looks on this device.</p>
+        <p className="dash-muted">Choose how postadoria looks on this device.</p>
         <div className="theme-options">
           {[
             { id: 'light', label: 'Light', description: 'Bright panels and soft purple accents' },

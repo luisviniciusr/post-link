@@ -23,7 +23,7 @@ export default function SignInPage() {
   function completeSignIn(nextEmail = email) {
     signIn({
       email: nextEmail.trim(),
-      name: nextEmail.trim().toLowerCase() === 'postlinklab@gmail.com' ? 'Post Link Lab' : undefined,
+      name: nextEmail.trim().toLowerCase() === 'postlinklab@gmail.com' ? 'Postadoria' : undefined,
     });
     navigate(redirectTo, { replace: true });
   }
@@ -38,7 +38,7 @@ export default function SignInPage() {
       <div className="auth-card">
         <Link to="/" className="auth-home">← Home</Link>
         <Brand />
-        <h1>{mode === 'signin' ? 'Sign in to post-link' : 'Create your account'}</h1>
+        <h1>{mode === 'signin' ? 'Sign in to postadoria' : 'Create your account'}</h1>
         <p className="auth-sub">Use your email or continue with Google. Demo mode stores a local session only.</p>
 
         <div className="auth-tabs">

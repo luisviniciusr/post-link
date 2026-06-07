@@ -200,7 +200,7 @@ export default function CreatePostPage() {
             </div>
             <textarea
               rows={5}
-              placeholder="Write your post once — post-link distributes it everywhere you linked."
+              placeholder="Write your post once — postadoria distributes it everywhere you linked."
               value={masterCaption}
               onChange={(event) => setMasterCaption(event.target.value)}
             />

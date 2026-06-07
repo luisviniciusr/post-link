@@ -37,7 +37,7 @@ const featureSections = [
   {
     tag: 'SCHEDULING',
     title: 'Schedule posts effortlessly',
-    body: 'Plan ahead, queue content, and customize captions per platform. Set the timing once and let post-link handle distribution while you focus on creating.',
+    body: 'Plan ahead, queue content, and customize captions per platform. Set the timing once and let postadoria handle distribution while you focus on creating.',
     cta: 'Start scheduling',
     secondary: 'View demo',
     preview: 'calendar',
@@ -69,14 +69,14 @@ const testimonials = [
   { quote: 'My team reviews drafts in one place instead of scattered screenshots.', name: 'Sam Ortiz', handle: '@samortiz' },
   { quote: 'The UI is as simple as adding an event to a calendar.', name: 'Fabian Ruiz', handle: '@fabianbuilds' },
   { quote: 'Best price-to-quality ratio I have found for multi-platform posting.', name: 'Fer Alvarez', handle: '@fer_chvs' },
-  { quote: 'post-link saves me at least an hour every day.', name: 'Noah Park', handle: '@noahpark' },
+  { quote: 'postadoria saves me at least an hour every day.', name: 'Noah Park', handle: '@noahpark' },
   { quote: 'Finally a scheduler that does not feel like enterprise software.', name: 'Elena Moss', handle: '@elenamoss' },
 ];
 
 const faqs = [
   {
     q: 'Why switch from Buffer or Hootsuite?',
-    a: 'post-link focuses on the workflow most creators actually need: connect accounts, prepare one post, adapt per platform, and schedule. No bloated dashboards or pricing tiers built for agencies you are not running.',
+    a: 'postadoria focuses on the workflow most creators actually need: connect accounts, prepare one post, adapt per platform, and schedule. No bloated dashboards or pricing tiers built for agencies you are not running.',
   },
   {
     q: 'What social platforms do you support?',
@@ -104,7 +104,7 @@ const faqs = [
   },
   {
     q: 'Will scheduled posts get less reach?',
-    a: 'Reach depends on the platform and your content — not the scheduling tool. post-link publishes through official platform APIs the same way other reputable schedulers do.',
+    a: 'Reach depends on the platform and your content — not the scheduling tool. postadoria publishes through official platform APIs the same way other reputable schedulers do.',
   },
   {
     q: 'Can I cancel anytime?',
@@ -120,7 +120,7 @@ const faqs = [
   },
   {
     q: 'I have another question',
-    a: 'Reach us at hello@post-link.app — we reply quickly.',
+    a: 'Reach us at hello@postadoria.com — we reply quickly.',
   },
 ];
 
@@ -142,7 +142,7 @@ const footerLinks = {
 function Brand() {
   return (
     <span className="brand">
-      post<span className="brand-accent">-link</span>
+      post<span className="brand-accent">adoria</span>
     </span>
   );
 }
@@ -159,7 +159,7 @@ function Header({ menuOpen, setMenuOpen }) {
 
   return (
     <header className="header">
-      <Link className="brand-link" to="/" aria-label="post-link home">
+      <Link className="brand-link" to="/" aria-label="postadoria home">
         <Brand />
       </Link>
       <nav className="nav" aria-label="Main">
@@ -283,7 +283,7 @@ function HeroMock() {
           <div className="hero-mock-dots">
             <span /><span /><span />
           </div>
-          <span className="hero-mock-title">Compose · post-link</span>
+          <span className="hero-mock-title">Compose · postadoria</span>
           <span className="hero-mock-badge">Live preview</span>
         </div>
 
@@ -380,7 +380,7 @@ function VideoMock({ variant }) {
     calendar: 'Drag posts onto your calendar',
     timeline: 'Track drafts, scheduled, and live posts',
     studio: 'Template-based video editing',
-    demo: 'See post-link in 2 minutes',
+    demo: 'See postadoria in 2 minutes',
   };
 
   return (
@@ -445,7 +445,7 @@ function Footer() {
         <div className="footer-brand-block">
           <Link className="brand-link" to="/"><Brand /></Link>
           <p>Post to multiple social platforms from one workspace. Cross-posting without the chaos.</p>
-          <a className="chat-link" href="mailto:hello@post-link.app">
+          <a className="chat-link" href="mailto:hello@postadoria.com">
             <MessageCircle size={16} /> Chat with us
           </a>
         </div>
@@ -472,7 +472,7 @@ function Footer() {
         <div className="footer-legal">
           {footerLinks.legal.map((link) => <a key={link} href="#top">{link}</a>)}
         </div>
-        <p className="copyright">© 2026 post-link — All rights reserved</p>
+        <p className="copyright">© 2026 postadoria — All rights reserved</p>
       </div>
     </footer>
   );
@@ -532,7 +532,7 @@ export default function LandingPage() {
       <CtaStrip />
 
       <section className="section testimonials">
-        <h2>post-link is loved by creators. Here&apos;s what they are saying.</h2>
+        <h2>postadoria is loved by creators. Here&apos;s what they are saying.</h2>
         <TestimonialCarousel />
       </section>
 
@@ -543,16 +543,16 @@ export default function LandingPage() {
           <div className="founder-avatar">PL</div>
           <div>
             <h2>Built out of frustration, not a pitch deck</h2>
-            <p className="founder-tag">Why we made post-link</p>
+            <p className="founder-tag">Why we made postadoria</p>
             <p>
               We were tired of opening six apps, rewriting the same caption, and losing an hour every day
               just to stay visible. Existing tools were either too expensive or too complicated for what we needed.
             </p>
             <p>
-              post-link is the tool we wished existed: one place to prepare content, adapt it per platform,
+              postadoria is the tool we wished existed: one place to prepare content, adapt it per platform,
               and schedule it — without enterprise pricing or a steep learning curve.
             </p>
-            <Link className="button primary" to="/signin">Try post-link free</Link>
+            <Link className="button primary" to="/signin">Try postadoria free</Link>
           </div>
         </div>
       </section>
@@ -580,7 +580,7 @@ export default function LandingPage() {
       <section className="section api" id="api">
         <div className="api-card">
           <span className="section-tag">Developer API</span>
-          <h2>Build with post-link</h2>
+          <h2>Build with postadoria</h2>
           <p>
             Integrate multi-platform posting into your apps and workflows, or connect AI assistants
             to schedule content programmatically. Built for agencies, internal tools, and automation.
@@ -655,7 +655,7 @@ export default function LandingPage() {
 
       <section className="section cta-final">
         <h2>Ready to get started?</h2>
-        <p>Join creators and founders who save hours every week with post-link. Start your free trial today.</p>
+        <p>Join creators and founders who save hours every week with postadoria. Start your free trial today.</p>
         <a className="button primary" href="#pricing">Start free trial</a>
       </section>
 

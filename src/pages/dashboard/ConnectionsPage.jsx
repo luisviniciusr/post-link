@@ -39,7 +39,7 @@ export default function ConnectionsPage() {
       <header className="connections-page-head">
         <div>
           <h1>Connections</h1>
-          <p className="dash-muted">Link your social accounts once — post-link handles distribution from there.</p>
+          <p className="dash-muted">Link your social accounts once — postadoria handles distribution from there.</p>
         </div>
       </header>
 
@@ -197,7 +197,7 @@ export default function ConnectionsPage() {
               <strong>Connect LinkedIn</strong>
               <button type="button" className="icon-btn" aria-label="Close" onClick={() => setConnectTarget(null)}><X size={16} /></button>
             </div>
-            <p className="dash-muted">Sign in with <strong>postlinklab@gmail.com</strong> to authorize post-link.</p>
+            <p className="dash-muted">Sign in with <strong>postlinklab@gmail.com</strong> to authorize postadoria.</p>
             <div className="linkedin-targets compact">
               {accounts.filter((account) => account.platformId === 'linkedin').map((account) => (
                 <button

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const STORAGE_KEY = 'post-link-theme';
+const STORAGE_KEY = 'postadoria-theme';
 
 const ThemeContext = createContext(null);
 

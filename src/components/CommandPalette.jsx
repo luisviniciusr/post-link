@@ -243,10 +243,10 @@ export default function CommandPalette() {
       setOpen(true);
     }
     window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('post-link:open-palette', onOpenPalette);
+    window.addEventListener('postadoria:open-palette', onOpenPalette);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('post-link:open-palette', onOpenPalette);
+      window.removeEventListener('postadoria:open-palette', onOpenPalette);
     };
   }, []);
 
