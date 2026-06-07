@@ -93,6 +93,27 @@ p { color: var(--muted); line-height: 1.7; }
   color: var(--text);
 }
 
+/* Gradient flows left→right across "postador" */
+.brand-grad {
+  background: linear-gradient(100deg, #a855f7 0%, #7c3aed 45%, #2563eb 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* "ia" = inteligência artificial / AI — subtle bright accent + soft glow */
+.brand-ia {
+  background: linear-gradient(100deg, #2563eb 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  position: relative;
+  cursor: help;
+  filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.45));
+}
+
 .brand-accent {
   color: var(--accent-strong);
 }

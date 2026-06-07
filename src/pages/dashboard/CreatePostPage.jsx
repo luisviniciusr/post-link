@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   CalendarClock,
@@ -49,6 +49,8 @@ export default function CreatePostPage() {
   const eligibleAccounts = useMemo(() => getAccountsForPostType(type), [type]);
   const [selectedIds, setSelectedIds] = useState(() => getDefaultSelectedIds(eligibleAccounts));
   const [uploaded, setUploaded] = useState(type === 'text');
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const fileInputRef = useRef(null);
   const [masterCaption, setMasterCaption] = useState('');
   const [syncedPlatforms, setSyncedPlatforms] = useState({});
   const [overrides, setOverrides] = useState({});
@@ -59,6 +61,7 @@ export default function CreatePostPage() {
   useEffect(() => {
     setSelectedIds(getDefaultSelectedIds(eligibleAccounts));
     setUploaded(type === 'text');
+    setUploadedFile(null);
     setMasterCaption('');
     setOverrides({});
     setSyncedPlatforms({});
@@ -81,6 +84,36 @@ export default function CreatePostPage() {
   const canPublish = selectedIds.length > 0 && (!needsUpload || uploaded) && masterCaption.trim().length > 0;
   const showLinkedInTips = selectedPlatforms.includes('linkedin');
   const navigate = useNavigate();
+
+  const acceptTypes = type === 'image' ? 'image/*' : type === 'video' ? 'video/*' : '*/*';
+
+  function formatBytes(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function handleFileSelect(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Guard against type mismatch (e.g. a video on the image composer)
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    if (type === 'image' && !isImage) {
+      showToast('That looks like a video — the image composer only accepts images.', 'error');
+      event.target.value = '';
+      return;
+    }
+    if (type === 'video' && !isVideo) {
+      showToast('That looks like an image — the video composer only accepts video files.', 'error');
+      event.target.value = '';
+      return;
+    }
+
+    setUploadedFile({ name: file.name, size: file.size, mime: file.type });
+    setUploaded(true);
+  }
 
   function buildPost(status) {
     const selectedAccounts = eligibleAccounts
@@ -205,25 +238,32 @@ export default function CreatePostPage() {
           {needsUpload && (
           <div className="dash-panel upload-panel">
             <div className="panel-step-label">Step 2 · Upload</div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={acceptTypes}
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
             <button
               type="button"
               className={`upload-zone large ${uploaded ? 'uploaded' : ''}`}
-              onClick={() => setUploaded(true)}
+              onClick={() => fileInputRef.current?.click()}
             >
-              {uploaded ? (
+              {uploaded && uploadedFile ? (
                 <>
                   <Check size={32} />
                   <div>
-                    <strong>product-demo-reel.mp4</strong>
-                    <p>42 MB · 9:16 · ready to link</p>
+                    <strong>{uploadedFile.name}</strong>
+                    <p>{formatBytes(uploadedFile.size)} · {uploadedFile.mime || type} · ready to link</p>
                   </div>
                 </>
               ) : (
                 <>
                   <CloudUpload size={32} />
                   <div>
-                    <strong>Drop your {type} here</strong>
-                    <p>MP4 or MOV · click to simulate upload</p>
+                    <strong>Choose {type === 'image' ? 'an image' : `a ${type}`} to upload</strong>
+                    <p>{type === 'image' ? 'JPG, PNG, GIF or WebP' : 'MP4 or MOV'} · click to browse your files</p>
                   </div>
                 </>
               )}

@@ -142,7 +142,8 @@ const footerLinks = {
 function Brand() {
   return (
     <span className="brand">
-      post<span className="brand-accent">adoria</span>
+      <span className="brand-grad">postador</span>
+      <span className="brand-ia" title="ia — inteligência artificial / AI">ia</span>
     </span>
   );
 }
@@ -241,18 +242,33 @@ function TypingSubtitle() {
 
   useEffect(() => {
     const phrase = heroPhrases[index];
+    let delay;
+
+    if (!deleting && text === phrase) {
+      // Fully typed — hold so it's comfortable to read, then start deleting
+      delay = 2200;
+    } else if (deleting && text.length === 0) {
+      // Fully deleted — brief beat before the next phrase
+      delay = 500;
+    } else {
+      // Typing is a touch slower than deleting; both eased for calm motion
+      delay = deleting ? 35 : 75;
+    }
+
     const timeout = setTimeout(() => {
       if (!deleting) {
-        const next = phrase.slice(0, text.length + 1);
-        setText(next);
-        if (next === phrase) setDeleting(true);
+        if (text === phrase) {
+          setDeleting(true);
+        } else {
+          setText(phrase.slice(0, text.length + 1));
+        }
       } else if (text.length === 0) {
         setDeleting(false);
         setIndex((current) => (current + 1) % heroPhrases.length);
       } else {
         setText(phrase.slice(0, text.length - 1));
       }
-    }, deleting ? 28 : 42);
+    }, delay);
 
     return () => clearTimeout(timeout);
   }, [text, deleting, index]);
