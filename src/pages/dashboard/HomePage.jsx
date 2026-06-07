@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -22,7 +22,19 @@ function greeting() {
 }
 
 export default function HomePage() {
-  const stats = useMemo(() => getStats(), []);
+  const [stats, setStats] = useState({
+    scheduledCount: 0,
+    draftCount: 0,
+    postedCount: 0,
+    connectedCount: 0,
+    nextPost: null,
+    recentPosts: [],
+  });
+
+  useEffect(() => {
+    getStats().then(setStats);
+  }, []);
+
   const { user } = useAuth();
   const displayName = user?.name && user.name.length <= 18 ? user.name : user?.name?.split(' ')[0] || 'there';
 

@@ -1,57 +1,106 @@
-import { scheduledPosts as demoScheduledPosts } from './mock';
+import { supabase } from '../lib/supabase';
 
-const STORAGE_KEY = 'postadoria-posts';
+// ============================================================
+// Posts data layer — backed by Supabase (posts + post_targets)
+// All functions are async. Components fetch in useEffect.
+// ============================================================
 
-export function loadPosts() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch { /* ignore */ }
-  return [];
+// Fetch all posts for the current user, newest first, with their targets.
+export async function getAllPosts() {
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*, post_targets(*)')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[store] getAllPosts failed:', error.message);
+    return [];
+  }
+
+  // Normalize to the shape the UI expects (date/time/platforms/title).
+  return (data || []).map(normalizePost);
 }
 
-export function savePosts(posts) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-}
-
-export function getAllPosts() {
-  const userPosts = loadPosts();
-  // Merge: if user has created posts, show those + demo as fallback for empty states
-  if (userPosts.length > 0) return userPosts;
-  return demoScheduledPosts;
-}
-
-export function addPost(post) {
-  const posts = loadPosts();
-  const newPost = {
-    ...post,
-    id: String(Date.now()),
-    createdAt: new Date().toISOString(),
+function normalizePost(row) {
+  const scheduled = row.scheduled_at ? new Date(row.scheduled_at) : null;
+  return {
+    id: row.id,
+    title: (row.master_caption || '').slice(0, 60) || 'Untitled post',
+    caption: row.master_caption,
+    type: row.post_type,
+    status: row.status,
+    mediaUrl: row.media_url,
+    date: scheduled ? scheduled.toISOString().slice(0, 10) : null,
+    time: scheduled ? scheduled.toISOString().slice(11, 16) : null,
+    scheduledAt: row.scheduled_at,
+    createdAt: row.created_at,
+    platforms: (row.post_targets || []).map((t) => t.platform),
+    targets: row.post_targets || [],
   };
-  posts.unshift(newPost);
-  savePosts(posts);
-  return newPost;
 }
 
-export function getStats(connectedCount = 6) {
-  const posts = getAllPosts();
+// Create a post + its per-platform targets.
+// `payload` = { masterCaption, type, mediaUrl, status, scheduledAt, targets: [{platform, caption, connectionId}] }
+export async function addPost(payload) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not signed in');
+
+  const { data: post, error } = await supabase
+    .from('posts')
+    .insert({
+      user_id: user.id,
+      master_caption: payload.masterCaption,
+      post_type: payload.type || 'text',
+      media_url: payload.mediaUrl || null,
+      status: payload.status || 'draft',
+      scheduled_at: payload.scheduledAt || null,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  if (payload.targets?.length) {
+    const targetRows = payload.targets.map((t) => ({
+      post_id: post.id,
+      connection_id: t.connectionId || null,
+      platform: t.platform,
+      caption: t.caption,
+      status: 'pending',
+    }));
+    const { error: targetErr } = await supabase.from('post_targets').insert(targetRows);
+    if (targetErr) throw targetErr;
+  }
+
+  return normalizePost(post);
+}
+
+// Dashboard stats derived from the user's real posts.
+export async function getStats() {
+  const [posts, connectionsCount] = await Promise.all([getAllPosts(), getConnectionCount()]);
   const scheduled = posts.filter((p) => p.status === 'scheduled');
   const drafts = posts.filter((p) => p.status === 'draft');
   const posted = posts.filter((p) => p.status === 'posted');
-  const sorted = [...posts].sort((a, b) => new Date(a.date) - new Date(b.date));
-  const upcoming = sorted.find(
-    (p) => p.status === 'scheduled' && new Date(p.date + 'T' + (p.time || '00:00')) >= new Date(),
-  );
+  const upcoming = [...scheduled]
+    .filter((p) => p.scheduledAt && new Date(p.scheduledAt) >= new Date())
+    .sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt))[0];
 
   return {
     scheduledCount: scheduled.length,
     draftCount: drafts.length,
     postedCount: posted.length,
-    connectedCount,
+    connectedCount: connectionsCount,
     nextPost: upcoming || scheduled[0] || null,
-    recentPosts: sorted.slice(0, 5),
+    recentPosts: posts.slice(0, 5),
   };
+}
+
+async function getConnectionCount() {
+  const { count } = await supabase
+    .from('connections')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'connected');
+  return count || 0;
 }

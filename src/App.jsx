@@ -4,6 +4,8 @@ import ToastContainer from './components/Toast';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import SignInPage from './pages/SignInPage';
+import OnboardingStartPage from './pages/OnboardingStartPage';
+import OnboardingConnectPage from './pages/OnboardingConnectPage';
 import DashboardLayout from './pages/dashboard/DashboardLayout';
 import CreateHomePage from './pages/dashboard/CreateHomePage';
 import HomePage from './pages/dashboard/HomePage';
@@ -27,6 +29,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignInPage />} />
+        <Route path="/onboarding/start" element={<ProtectedRoute><OnboardingStartPage /></ProtectedRoute>} />
+        <Route path="/onboarding/connect" element={<ProtectedRoute><OnboardingConnectPage /></ProtectedRoute>} />
         <Route
           path="/app"
           element={(

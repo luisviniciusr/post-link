@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FilePlus2 } from 'lucide-react';
 import { getAllPosts } from '../../data/store';
@@ -15,7 +16,13 @@ export default function PostsPage() {
   const { filter } = useParams();
   const mode = filter || 'all';
 
-  const posts = getAllPosts().filter((post) => {
+  const [allPosts, setAllPosts] = useState([]);
+
+  useEffect(() => {
+    getAllPosts().then(setAllPosts);
+  }, []);
+
+  const posts = allPosts.filter((post) => {
     if (mode === 'all') return true;
     if (mode === 'scheduled') return post.status === 'scheduled';
     if (mode === 'posted') return post.status === 'posted';

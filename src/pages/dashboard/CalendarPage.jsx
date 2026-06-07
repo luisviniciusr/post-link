@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Plus, StickyNote } from 'lucide-react';
 import { getStats, getAllPosts } from '../../data/store';
@@ -35,8 +35,20 @@ function formatDayLabel(date) {
 export default function CalendarPage() {
   const [view, setView] = useState('Month');
   const [cursor, setCursor] = useState(new Date(2026, 5, 3));
-  const stats = useMemo(() => getStats(), []);
-  const allPosts = useMemo(() => getAllPosts(), []);
+  const [stats, setStats] = useState({
+    scheduledCount: 0,
+    draftCount: 0,
+    postedCount: 0,
+    connectedCount: 0,
+    nextPost: null,
+    recentPosts: [],
+  });
+  const [allPosts, setAllPosts] = useState([]);
+
+  useEffect(() => {
+    getStats().then(setStats);
+    getAllPosts().then(setAllPosts);
+  }, []);
 
   const cells = useMemo(
     () => (view === 'Month'
@@ -109,7 +121,7 @@ export default function CalendarPage() {
               {cells.map((date) => {
                 const key = date.toISOString().slice(0, 10);
                 const inMonth = date.getMonth() === cursor.getMonth();
-                const dayPosts = allPosts.filter((post) => post.date === key);
+                const dayPosts = allPosts.filter((post) => post.date && post.date === key);
                 const isToday = key === new Date().toISOString().slice(0, 10);
 
                 return (
@@ -132,7 +144,7 @@ export default function CalendarPage() {
             <div className="week-grid">
               {cells.map((date) => {
                 const key = date.toISOString().slice(0, 10);
-                const dayPosts = allPosts.filter((post) => post.date === key);
+                const dayPosts = allPosts.filter((post) => post.date && post.date === key);
                 const isToday = key === new Date().toISOString().slice(0, 10);
 
                 return (

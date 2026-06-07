@@ -9,24 +9,33 @@ import {
   Sparkles,
 } from 'lucide-react';
 import {
-  connectedAccounts,
-  getAccountsForPostType,
   getPlatform,
   platformCaptionLimits,
 } from '../../data/mock';
 import { addPost } from '../../data/store';
+import { getConnections } from '../../data/connections';
+import { supabase } from '../../lib/supabase';
 import { showToast } from '../../components/Toast';
 import PlatformTips from '../../components/dashboard/PlatformTips';
 
 const STEPS = ['Link', 'Upload', 'Write', 'Tweak', 'Schedule'];
-const PREFERRED_ACCOUNT_IDS = ['1', '2', '4', '5', '3', '6'];
 
-function getDefaultSelectedIds(eligibleAccounts) {
-  const picked = PREFERRED_ACCOUNT_IDS.filter((id) => eligibleAccounts.some((account) => account.id === id));
-  return (picked.length ? picked : eligibleAccounts.map((account) => account.id)).slice(0, 5);
+// Map a connection row to the account shape the compose UI expects.
+function connectionToAccount(c) {
+  return {
+    id: c.id,
+    platformId: c.platform,
+    name: c.account_name || c.account_handle,
+    handle: c.account_handle,
+    connectionId: c.id,
+  };
 }
 
-function getSelectedPlatforms(accountIds, accounts = connectedAccounts) {
+function getDefaultSelectedIds(eligibleAccounts) {
+  return eligibleAccounts.map((account) => account.id).slice(0, 8);
+}
+
+function getSelectedPlatforms(accountIds, accounts) {
   const platforms = new Set();
   accounts
     .filter((account) => accountIds.includes(account.id))
@@ -46,8 +55,9 @@ function stepProgress(selectedCount, uploaded, masterCaption, overrideCount, sch
 
 export default function CreatePostPage() {
   const { type = 'video' } = useParams();
-  const eligibleAccounts = useMemo(() => getAccountsForPostType(type), [type]);
-  const [selectedIds, setSelectedIds] = useState(() => getDefaultSelectedIds(eligibleAccounts));
+  const [eligibleAccounts, setEligibleAccounts] = useState([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [uploaded, setUploaded] = useState(type === 'text');
   const [uploadedFile, setUploadedFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -57,15 +67,29 @@ export default function CreatePostPage() {
   const [activePlatform, setActivePlatform] = useState(null);
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  // Load the user's real connected accounts.
+  useEffect(() => {
+    let active = true;
+    setLoadingAccounts(true);
+    getConnections().then((conns) => {
+      if (!active) return;
+      const accounts = conns.map(connectionToAccount);
+      setEligibleAccounts(accounts);
+      setSelectedIds(getDefaultSelectedIds(accounts));
+      setLoadingAccounts(false);
+    });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
-    setSelectedIds(getDefaultSelectedIds(eligibleAccounts));
     setUploaded(type === 'text');
     setUploadedFile(null);
     setMasterCaption('');
     setOverrides({});
     setSyncedPlatforms({});
-  }, [type, eligibleAccounts]);
+  }, [type]);
 
   const selectedPlatforms = useMemo(
     () => getSelectedPlatforms(selectedIds, eligibleAccounts),
@@ -115,45 +139,90 @@ export default function CreatePostPage() {
     setUploaded(true);
   }
 
-  function buildPost(status) {
-    const selectedAccounts = eligibleAccounts
-      .filter((a) => selectedIds.includes(a.id))
-      .map((a) => ({
-        id: a.id,
-        platform: a.platformId,
-        platformName: getPlatform(a.platformId)?.label || a.platformId,
-      }));
+  // Build the post payload for the async store (posts + post_targets).
+  function buildPayload(status) {
+    const selected = eligibleAccounts.filter((a) => selectedIds.includes(a.id));
+    const targets = selected.map((a) => ({
+      platform: a.platformId,
+      connectionId: a.connectionId,
+      // Use per-platform override if the user unsynced it, else the master caption.
+      caption: overrides[a.platformId] ?? masterCaption,
+    }));
+
+    let scheduledAt = null;
+    if (status === 'scheduled') {
+      scheduledAt = new Date(`${scheduleDate}T${scheduleTime || '12:00'}:00`).toISOString();
+    }
+
     return {
-      title: masterCaption.slice(0, 60) + (masterCaption.length > 60 ? '…' : ''),
-      caption: masterCaption,
+      masterCaption,
+      type,
+      mediaUrl: null, // media upload to Supabase Storage comes in a later phase
       status,
-      date: scheduleDate || new Date().toISOString().slice(0, 10),
-      time: scheduleTime || '12:00',
-      platforms: selectedAccounts.map((a) => a.platform),
-      accounts: selectedAccounts,
-      overrides: Object.keys(overrides).length > 0 ? { ...overrides } : undefined,
+      scheduledAt,
+      targets,
     };
   }
 
-  function handleSaveDraft() {
-    if (!canPublish) return;
-    addPost(buildPost('draft'));
-    showToast('Draft saved! View it in Posts.', 'success');
-    navigate('/app/posts/drafts');
+  async function handleSaveDraft() {
+    if (!canPublish || submitting) return;
+    setSubmitting(true);
+    try {
+      await addPost(buildPayload('draft'));
+      showToast('Draft saved! View it in Posts.', 'success');
+      navigate('/app/posts/drafts');
+    } catch (err) {
+      showToast(err.message || 'Could not save draft.', 'error');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  function handlePublishNow() {
-    if (!canPublish) return;
-    addPost(buildPost('posted'));
-    showToast('Post published! 🚀', 'success');
-    navigate('/app/posts');
+  async function handlePublishNow() {
+    if (!canPublish || submitting) return;
+    setSubmitting(true);
+    try {
+      // 1. Create the post (status publishing-pending = scheduled w/ now).
+      const post = await addPost(buildPayload('scheduled'));
+      // 2. Call the publish API to push to each platform immediately.
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ postId: post.id }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Publish failed');
+
+      const failed = (result.results || []).filter((r) => !r.ok);
+      if (failed.length === 0) {
+        showToast('Post published! 🚀', 'success');
+      } else {
+        showToast(`Published with ${failed.length} error(s): ${failed[0].error}`, 'error');
+      }
+      navigate('/app/posts');
+    } catch (err) {
+      showToast(err.message || 'Could not publish.', 'error');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  function handleSchedule() {
-    if (!canPublish || !scheduleDate) return;
-    addPost(buildPost('scheduled'));
-    showToast(`Scheduled for ${scheduleDate} at ${scheduleTime || '12:00'}`, 'success');
-    navigate('/app/posts/scheduled');
+  async function handleSchedule() {
+    if (!canPublish || !scheduleDate || submitting) return;
+    setSubmitting(true);
+    try {
+      await addPost(buildPayload('scheduled'));
+      showToast(`Scheduled for ${scheduleDate} at ${scheduleTime || '12:00'}`, 'success');
+      navigate('/app/posts/scheduled');
+    } catch (err) {
+      showToast(err.message || 'Could not schedule.', 'error');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function toggleAccount(id) {
